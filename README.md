@@ -9,7 +9,7 @@
 ### 安装
 
 1. 安装 Minecraft **1.21.11** 对应的 [Fabric Loader](https://fabricmc.net/use/installer/)（0.19.5 或更高兼容版本）和 [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11)。
-2. 将 **`chy-3.2.0+mc1.21.11.jar`** 放进该启动配置游戏目录的 `mods` 文件夹。**不要安装 `-sources.jar`，升级时先移走旧 `autoclick` 或旧 `chy` JAR。**
+2. 下载 [chy-3.2.0+mc1.21.11.jar](built/chy-3.2.0+mc1.21.11.jar?raw=true)，放进该启动配置游戏目录的 `mods` 文件夹。**不要安装 `-sources.jar`，升级时先移走旧 `autoclick` 或旧 `chy` JAR。**
 3. 使用 Fabric 配置启动游戏，进入世界后输入 `/chy_help` 查看帮助。
 
 本模组只需安装在客户端。构建产物位于 `autoclick-template-1.21.11/build/libs/`；自行编译请看 [开发与维护文档](DEVELOPMENT.md)。
