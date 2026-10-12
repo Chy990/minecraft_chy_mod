@@ -3,6 +3,7 @@
 伪键盘操作实现挂机和其他功能。
 
 **当前版本：v3.3.0**
+
 **支持版本：Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
 
 ## 使用方法
@@ -81,7 +82,7 @@
 
 ### v3.2.0
 
-- 模组由 `autoclick` 更名为 **chy**，介绍改为“伪键盘操作实现挂机和其他功能”，新增 [GitHub 项目链接](https://github.com/Chy990/20250721_mc_fabric_mod)。
+- 模组由 `autoclick` 更名为 **chy**，介绍改为“伪键盘操作实现挂机和其他功能”
 - `/auto_attack` 改为 `/left_click`，保留原有攻击行为。
 - 新增 `/right_click` 自动右键，支持周期放置方块；左右键默认均为 12 tick，参数统一使用整数 tick。
 - 提示改为 `自动左/右键，间隔xx tick`，不再显示秒数。
