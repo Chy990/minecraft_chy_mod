@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "neoforge - Client",
+      "presentation": {
+        "group": "Mod Development - neoforge",
+        "order": 0
+      },
+      "projectName": "neoforge",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@/Users/billchen/Desktop/Developer_MAC/20250721_mc_fabric_mod/autoclick-template-1.21.11/neoforge/build/moddev/clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@/Users/billchen/Desktop/Developer_MAC/20250721_mc_fabric_mod/autoclick-template-1.21.11/neoforge/build/moddev/clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dchy%%/Users/billchen/Desktop/Developer_MAC/20250721_mc_fabric_mod/autoclick-template-1.21.11/neoforge/bin/main"
+      ],
+      "cwd": "${workspaceFolder}/run-neoforge-1.21.11",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
-# chy
+# 我的世界1.21.11 chy Mod
 
 伪键盘操作实现挂机和其他功能。
 
-**当前版本：v3.3.0 · Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
+**当前版本：v3.3.0**
+**支持版本：Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
 
 ## 使用方法
 
@@ -87,7 +88,7 @@
 - 新增 `/shift` 持续潜行开关，更新 `/chy_help` 覆盖全部功能。
 - 聊天栏提示和帮助改为红色，加入自定义模组图标。
 
-### v3.3.0 · 20261012
+### v3.3.0
 
 - 新增 Minecraft 1.21.11 的 Forge、NeoForge 客户端支持，保留 Fabric 支持。
 - 改为 `common + fabric + forge + neoforge` 多模块工程，共享计时、状态、命令、点击与潜行逻辑；各加载器仅保留入口和事件注册。
