@@ -1,0 +1,35 @@
+plugins { id 'net.minecraftforge.gradle' version "${forge_gradle_version}" }
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+    runs {
+        configureEach {
+            workingDir = rootProject.layout.projectDirectory.dir('run-forge-1.21.11')
+            args '--mixin.config=chy.client.mixins.json'
+            mods {
+                register('chy') { source sourceSets.main }
+            }
+            // The 61.2.0 userdev metadata does not supply this environment token.
+            // Forge needs it to combine classes and resources into one dev mod.
+            environment 'MOD_CLASSES', '{source_roots}'
+        }
+        register('client') {
+            if (System.getProperty('os.name').toLowerCase(java.util.Locale.ROOT).contains('mac')) {
+                jvmArgs '-XstartOnFirstThread'
+            }
+        }
+    }
+}
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    mavenCentral()
+}
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    // Forge 1.21.11 uses official names at runtime, so no SRG refmap is needed.
+    // Keep common Mixin annotations remappable for Fabric's remapJar instead
+    // of running Mixin's legacy SRG annotation processor without SRG mappings.
+}
+jar { manifest.attributes('MixinConfigs': 'chy.client.mixins.json') }

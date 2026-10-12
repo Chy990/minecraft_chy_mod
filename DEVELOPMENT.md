@@ -1,62 +1,76 @@
 # chy 开发与维护
 
-面向 Minecraft Java 1.21.11 + Fabric，使用 Java 21。玩家安装和命令说明见 [README](README.md)。
+Minecraft Java 1.21.11，Java 21，Fabric / Forge / NeoForge。玩家安装和命令说明见 [README](README.md)。
 
-## 工程与本地数据
+## 架构与选型
 
-- 当前工程目录为 `autoclick-template-1.21.11/`；模组名称、ID 和构建产物均为 `chy`。
-- `backup/` 保存旧代码，`built/` 保存历史 JAR，均不参与当前构建；`built/` 不会随 build 自动更新。
-- 开发客户端使用 `run-1.21.11/`，旧 `run/` 存档保留在本地。
-- `.gitignore` 排除了 `run/`、`run-*/`、`build/` 和 `.gradle/`。旧 `run/` 已取消 Git 跟踪，后续普通提交不会包含测试存档和日志；已有 Git 历史中的文件仍然保留。
+工程保留在 `autoclick-template-1.21.11/`，以避免迁移本地存档和现有工程路径。v3.3.0 使用一个 Gradle 多模块工程，输出三个独立的客户端模组。
 
-## Mac 开发、测试和编译
+| 目录 | 职责 |
+| --- | --- |
+| `common/src/main/java` | 不依赖 Minecraft 或加载器的状态、计时、调度和 Brigadier 命令树 |
+| `common/src/test/java` | 状态、命令参数、暂停、断线与点击调度测试 |
+| `common/src/minecraft/java` | 三端共用的 Minecraft 操作、红色反馈及潜行/右键 Mixin |
+| `common/src/main/resources` | 共用图标和客户端 Mixin 配置 |
+| `fabric/` | Fabric 入口、生命周期事件、命令事件与 `fabric.mod.json` |
+| `forge/` | Forge 入口、事件总线注册与 `META-INF/mods.toml` |
+| `neoforge/` | NeoForge 客户端入口、事件注册与 `META-INF/neoforge.mods.toml` |
 
-以下命令从仓库根目录开始执行。
+调研参考（2026-10-12）：
 
-### 1. 打开终端，进入工程
+- [JEI](https://github.com/mezz/JustEnoughItems) 将通用代码与加载器代码放在同一仓库的独立模块中，适合统一维护功能。
+- [MultiLoader Template](https://github.com/jaredlll08/MultiLoader-Template) 使用 common 源码与加载器子项目，无需增加跨平台运行时库。
+- [Architectury Templates](https://github.com/architectury/architectury-templates) 提供另一种多加载器工程方案；当前功能只涉及客户端命令和输入，无需引入额外平台 API。
+- 构建配置参考 [Forge 1.21.11 MDK](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html)、[Forge Mixin 示例](https://github.com/MinecraftForge/MDKExamples/tree/master/mixins-only/fg7) 和 [NeoForge 1.21.11 MDK](https://github.com/NeoForgeMDKs/MDK-1.21.11-ModDevGradle)。
+
+本项目采用共享源码编译：每个加载器在自己的 Minecraft 依赖环境中编译同一份 common 源码，再直接打进各自 JAR。三个模块均使用 Mojang 官方名称映射；Fabric Loom 将发布包映射为 Fabric 的运行时名称；Forge 1.21.11 和 NeoForge 使用官方运行时名称，不生成旧版 SRG refmap。`common` 的纯 Java 测试不需启动游戏。玩家无需安装 common 或 Architectury API。
+
+Forge 和 NeoForge 的事件总线不同，入口分别实现；自动操作仍只在客户端注册。Mixin 配置只使用 `client` 列表，避免专用服务器加载客户端类。
+
+## 构建与测试
+
+从仓库根目录执行：
 
 ```bash
 cd autoclick-template-1.21.11
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 export PATH="$JAVA_HOME/bin:$PATH"
-java -version
-chmod +x gradlew
+./gradlew build collectJars
 ```
 
-使用 Java 21 和项目自带的 Gradle Wrapper。第一次构建需要联网下载依赖。
+使用项目自带的 Gradle 9.5.0 Wrapper。首次构建需要联网下载依赖。ForgeGradle 7 的 Mavenizer 构建工具另外需要 Java 25，已配置官方 MDK 使用的 Foojay resolver，由 Gradle 自动下载到工具链缓存；游戏和模组仍使用 Java 21。版本固定在 `gradle.properties`：Fabric Loader 0.19.5、Fabric API 0.141.6+1.21.11、Forge 61.2.0、NeoForge 21.11.45。
 
-### 2. 自动化测试并编译 JAR
-
-```bash
-./gradlew build
-```
-
-看到 `BUILD SUCCESSFUL` 表示编译、测试和打包成功。回归测试覆盖默认 12 tick、停止后重开恢复默认、调整间隔重置计时、整数 tick 边界、非法参数不改变状态、左右键独立计时和退出重置。单独运行测试：
-
-```bash
-./gradlew test
-open build/reports/tests/test/index.html
-```
-
-可安装的成品：
+`build` 编译三个加载器并运行共享逻辑测试，`collectJars` 将三个可安装 JAR 汇总至：
 
 ```text
-build/libs/chy-3.2.0+mc1.21.11.jar
+build/libs/chy-fabric-3.3.0+mc1.21.11.jar
+build/libs/chy-forge-3.3.0+mc1.21.11.jar
+build/libs/chy-neoforge-3.3.0+mc1.21.11.jar
 ```
 
-**不要安装 `-sources.jar` 或 `build/devlibs` 里的开发 JAR。** 后续改代码后执行 `./gradlew build`；需要完全重新生成产物时执行 `./gradlew clean build`。`built/` 仅为手动保存的历史副本，不会随 build 更新。
+单独构建或测试：
 
 ```bash
-open build/libs
+./gradlew :common:test --configure-on-demand
+./gradlew :fabric:build
+./gradlew :forge:build
+./gradlew :neoforge:build
+open common/build/reports/tests/test/index.html
 ```
 
-### 3. 启动开发客户端并验证游戏行为
+单加载器的产物位于 `<加载器>/build/libs/`。不要安装 `common`、`-sources.jar` 或 `build/devlibs` 中的开发 JAR。`built/` 保存历史发布副本，不会被构建自动覆盖；发布时手动复制本次的三个文件。
+
+## 启动开发客户端
 
 ```bash
-./gradlew runClient
+./gradlew :fabric:runClient
+./gradlew :forge:runClient
+./gradlew :neoforge:runClient
 ```
 
-这会启动加载本模组和 Fabric API 的 Minecraft 1.21.11 开发客户端，使用独立的 `run-1.21.11/` 目录。开发客户端不应当作已登录的正式启动器客户端使用。自动化状态测试不能替代以下实际游戏验证：
+各加载器使用独立的 `run-fabric-1.21.11/`、`run-forge-1.21.11/`、`run-neoforge-1.21.11/`，日志在相应目录的 `logs/latest.log`。旧 `run/` 和 `run-1.21.11/` 保留，不自动迁移存档。开发客户端不应当作已登录的正式启动器客户端使用。
+
+以下清单应在三个加载器上分别验证，自动化逻辑测试不能替代实际游戏行为验证：
 
 1. 输入 `/chy_help`，确认包含左右键、tick 参数、持续潜行、开关方式及退出重置说明。
 2. 准星对着实体输入 `/left_click`，确认显示 `自动左键，间隔12 tick` 并周期攻击；准星移开后只挥手、不挖方块。再次输入关闭。
@@ -69,23 +83,10 @@ open build/libs
 9. 三项功能开启后退出世界，重新进入应全部关闭；检查死亡重生后输入正常，旁观模式不自动点击。
 10. `/auto_attack`、`/chy_autoattack`、`/chy_deepseek`、`/chy_say` 不再由本模组提供；日志中的模组标识为 `chy`。
 
-日志位于 `run-1.21.11/logs/latest.log`；通过正式启动器运行时位于对应游戏目录的 `logs/latest.log`。
+## 资源与本地数据
 
-## 模组图标与提示颜色
-
-- 图标文件：`autoclick-template-1.21.11/src/main/resources/assets/chy/icon.png`，由用户提供的 `chy_mod.png` 移入。
-- `src/main/resources/fabric.mod.json` 中的 `icon` 字段为 `assets/chy/icon.png`，路径相对于资源根目录。
-- 更新图标时替换该 PNG 并重新执行 `./gradlew build`，新图标会打包进 JAR。
-- 聊天栏提示和帮助统一由 `ChyModClient.sendFeedback` 设置为 `Formatting.RED`；日志保留普通文本。
-
-## 手动安装到 macOS 默认游戏目录
-
-先关闭游戏，确认启动配置使用默认目录，并移走旧 `autoclick` 和旧 `chy` JAR。从工程目录执行：
-
-```bash
-mkdir -p "$HOME/Library/Application Support/minecraft/mods"
-open "$HOME/Library/Application Support/minecraft/mods"
-cp build/libs/chy-3.2.0+mc1.21.11.jar "$HOME/Library/Application Support/minecraft/mods/"
-```
-
-自定义游戏目录请调整目标路径。Fabric API 仍需单独安装。
+- 共用图标：`common/src/main/resources/assets/chy/icon.png`。
+- 共用聊天提示颜色：`common/src/minecraft/java/name/modid/ChyClient.java` 中的 `ChatFormatting.RED`。
+- 只在 common 中修改功能；加载器入口只负责事件绑定。更改 Minecraft 版本时同时检查三个加载器及 Mixin 目标。
+- `backup/` 保存旧代码，不参与构建。`.gitignore` 排除 `run/`、`run-*/`、`build/` 和 `.gradle/`。请勿提交测试存档、日志或依赖缓存。
+- 手动安装时先关闭游戏，将对应加载器的一个 JAR 放入启动配置的 `mods` 目录；macOS 默认位置为 `~/Library/Application Support/minecraft/mods/`。Fabric 还需要 Fabric API。

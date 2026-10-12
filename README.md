@@ -2,17 +2,23 @@
 
 伪键盘操作实现挂机和其他功能。
 
-**当前版本：v3.2.0 · Minecraft Java 1.21.11 · Fabric · Java 21**
+**当前版本：v3.3.0 · Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
 
 ## 使用方法
 
 ### 安装
 
-1. 安装 Minecraft **1.21.11** 对应的 [Fabric Loader](https://fabricmc.net/use/installer/)（0.19.5 或更高兼容版本）和 [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11)。
-2. 下载 [chy-3.2.0+mc1.21.11.jar](built/chy-3.2.0+mc1.21.11.jar?raw=true)，放进该启动配置游戏目录的 `mods` 文件夹。**不要安装 `-sources.jar`，升级时先移走旧 `autoclick` 或旧 `chy` JAR。**
-3. 使用 Fabric 配置启动游戏，进入世界后输入 `/chy_help` 查看帮助。
+1. 安装 Minecraft **1.21.11** 和下表中对应的加载器，使用 **Java 21**。
+2. 下载对应加载器的 JAR，放进该启动配置游戏目录的 `mods` 文件夹。**只安装其中一个版本，不要安装 `-sources.jar`；升级时先移走旧 `autoclick` 或旧 `chy` JAR。**
+3. 使用相应加载器启动游戏，进入世界后输入 `/chy_help` 查看帮助。
 
-本模组只需安装在客户端。构建产物位于 `autoclick-template-1.21.11/build/libs/`；自行编译请看 [开发与维护文档](DEVELOPMENT.md)。
+| 加载器 | 安装要求 | 下载 |
+| --- | --- | --- |
+| Fabric | [Fabric Loader](https://fabricmc.net/use/installer/) 0.19.5+，另装 [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11) | [chy-fabric-3.3.0+mc1.21.11.jar](built/chy-fabric-3.3.0+mc1.21.11.jar?raw=true) |
+| Forge | [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html) 61.2.0+ | [chy-forge-3.3.0+mc1.21.11.jar](built/chy-forge-3.3.0+mc1.21.11.jar?raw=true) |
+| NeoForge | [NeoForge](https://neoforged.net/) 21.11.45+（对应 1.21.11） | [chy-neoforge-3.3.0+mc1.21.11.jar](built/chy-neoforge-3.3.0+mc1.21.11.jar?raw=true) |
+
+本模组只需安装在客户端，三种加载器的命令和行为一致。构建与架构说明见 [开发与维护文档](DEVELOPMENT.md)。
 
 ### 游戏内命令
 
@@ -80,3 +86,10 @@
 - 提示改为 `自动左/右键，间隔xx tick`，不再显示秒数。
 - 新增 `/shift` 持续潜行开关，更新 `/chy_help` 覆盖全部功能。
 - 聊天栏提示和帮助改为红色，加入自定义模组图标。
+
+### v3.3.0 · 20261012
+
+- 新增 Minecraft 1.21.11 的 Forge、NeoForge 客户端支持，保留 Fabric 支持。
+- 改为 `common + fabric + forge + neoforge` 多模块工程，共享计时、状态、命令、点击与潜行逻辑；各加载器仅保留入口和事件注册。
+- 统一使用 Mojang 官方名称映射，三个加载器分别打包，无需额外安装共享库。
+- 新增共享命令及 tick 调度回归测试，构建产物名称加入加载器标识，避免安装混淆。

@@ -1,0 +1,12 @@
+plugins { id 'net.neoforged.moddev' version "${moddev_version}" }
+
+neoForge {
+    version = neo_version
+    runs {
+        client {
+            client()
+            gameDirectory = rootProject.file('run-neoforge-1.21.11')
+        }
+    }
+    mods { chy { sourceSet sourceSets.main } }
+}
