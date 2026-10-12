@@ -6,12 +6,6 @@ minecraft {
         configureEach {
             workingDir = rootProject.layout.projectDirectory.dir('run-forge-1.21.11')
             args '--mixin.config=chy.client.mixins.json'
-            mods {
-                register('chy') { source sourceSets.main }
-            }
-            // The 61.2.0 userdev metadata does not supply this environment token.
-            // Forge needs it to combine classes and resources into one dev mod.
-            environment 'MOD_CLASSES', '{source_roots}'
         }
         register('client') {
             if (System.getProperty('os.name').toLowerCase(java.util.Locale.ROOT).contains('mac')) {
@@ -33,3 +27,14 @@ dependencies {
     // of running Mixin's legacy SRG annotation processor without SRG mappings.
 }
 jar { manifest.attributes('MixinConfigs': 'chy.client.mixins.json') }
+
+// Forge 61's classpath locator scans each directory as a separate mod. Run the
+// packaged artifact so metadata, classes and shared resources are found together.
+tasks.matching { it.name == 'runClient' }.configureEach {
+    dependsOn tasks.named('jar')
+    doFirst {
+        def outputs = sourceSets.main.output.files
+        def launchFiles = classpath.files.findAll { !outputs.contains(it) }
+        classpath = files(launchFiles, tasks.named('jar').flatMap { it.archiveFile })
+    }
+}

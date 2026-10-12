@@ -68,6 +68,8 @@ open common/build/reports/tests/test/index.html
 ./gradlew :neoforge:runClient
 ```
 
+Forge 的开发启动会先生成 JAR，再用该完整 JAR 替换运行类路径中的散装类/资源目录，避免 Forge 61 将资源目录单独识别为缺失入口的模组；macOS 自动加入 `-XstartOnFirstThread`。
+
 各加载器使用独立的 `run-fabric-1.21.11/`、`run-forge-1.21.11/`、`run-neoforge-1.21.11/`，日志在相应目录的 `logs/latest.log`。旧 `run/` 和 `run-1.21.11/` 保留，不自动迁移存档。开发客户端不应当作已登录的正式启动器客户端使用。
 
 以下清单应在三个加载器上分别验证，自动化逻辑测试不能替代实际游戏行为验证：
@@ -90,3 +92,12 @@ open common/build/reports/tests/test/index.html
 - 只在 common 中修改功能；加载器入口只负责事件绑定。更改 Minecraft 版本时同时检查三个加载器及 Mixin 目标。
 - `backup/` 保存旧代码，不参与构建。`.gitignore` 排除 `run/`、`run-*/`、`build/` 和 `.gradle/`。请勿提交测试存档、日志或依赖缓存。
 - 手动安装时先关闭游戏，将对应加载器的一个 JAR 放入启动配置的 `mods` 目录；macOS 默认位置为 `~/Library/Application Support/minecraft/mods/`。Fabric 还需要 Fabric API。
+
+## v3.3.0 验证记录（2026-10-12）
+
+- 三加载器 `build collectJars` 通过，共享核心 14 项测试通过。
+- 校验三个发布包的入口类、公共类、Java 21 字节码、版本、图标和客户端 Mixin 配置。
+- Fabric、NeoForge 开发客户端启动并加载 chy。
+- Forge 使用完整 JAR 启动，进入独立测试存档；日志记录左右键开关、两项 Mixin 加载及正常退出保存。
+- 已补充 Mixin 最低版本和 Minecraft 1.21.11 资源包元数据。Windows / Forge 61.2.1 的最初日志只记录到启动完成，不能据此确认那次进入世界失败的原因。
+- 方块放置结果、持续潜行的边缘保护、多人与三端完整行为清单仍需逐项实测。
