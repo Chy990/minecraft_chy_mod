@@ -4,7 +4,7 @@
 
 Simulates keyboard and mouse input for AFK automation and other features.
 
-**Current version: v3.3.0**
+**Current version: v3.3.1**
 
 **Supported versions: Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
 
@@ -18,9 +18,9 @@ Simulates keyboard and mouse input for AFK automation and other features.
 
 | Loader | Requirements | Download |
 | --- | --- | --- |
-| Fabric | [Fabric Loader](https://fabricmc.net/use/installer/) 0.19.5+ and [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11) | [chy-fabric-3.3.0+mc1.21.11.jar](built/chy-fabric-3.3.0+mc1.21.11.jar?raw=true) |
-| Forge | [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html) 61.2.0+ | [chy-forge-3.3.0+mc1.21.11.jar](built/chy-forge-3.3.0+mc1.21.11.jar?raw=true) |
-| NeoForge | [NeoForge](https://neoforged.net/) 21.11.45+ (for Minecraft 1.21.11) | [chy-neoforge-3.3.0+mc1.21.11.jar](built/chy-neoforge-3.3.0+mc1.21.11.jar?raw=true) |
+| Fabric | [Fabric Loader](https://fabricmc.net/use/installer/) 0.19.5+ and [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11) | [chy-fabric-3.3.1+mc1.21.11.jar](built/chy-fabric-3.3.1+mc1.21.11.jar?raw=true) |
+| Forge | [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html) 61.2.0+ | [chy-forge-3.3.1+mc1.21.11.jar](built/chy-forge-3.3.1+mc1.21.11.jar?raw=true) |
+| NeoForge | [NeoForge](https://neoforged.net/) 21.11.45+ (for Minecraft 1.21.11) | [chy-neoforge-3.3.1+mc1.21.11.jar](built/chy-neoforge-3.3.1+mc1.21.11.jar?raw=true) |
 
 This mod only needs to be installed on the client. Commands and behavior are the same across all three loaders. For build instructions and architecture details, see the [Development and Maintenance Guide](DEVELOPMENT.md) (in Chinese).
 
@@ -38,7 +38,9 @@ This mod only needs to be installed on the client. Commands and behavior are the
 - **Automatic left-clicking:** Attacks the entity under the crosshair. If no entity is targeted, swings your hand. Does not automatically mine blocks.
 - **Automatic right-clicking:** Attempts to place blocks when holding one, and can trigger vanilla right-click interactions with containers, buttons, and other blocks. Combine it with `/shift` to place blocks against chests and similar blocks.
 - **Interval settings:** The argument must be a positive integer number of ticks, with a minimum of 1. Left and right clicks have independent timers. Adjusting an interval restarts its timer. Each time you enable a feature without an argument, its interval resets to 12 ticks.
-- **Status messages:** Shown in red in chat, for example `自动左键，间隔12 tick` (automatic left-clicking, interval: 12 ticks). Run the corresponding command again without an argument to disable it.
+- **Status messages:** Shown in the default white color in chat, for example `自动左键，间隔12 tick` (automatic left-clicking, interval: 12 ticks). Run the corresponding command again without an argument to disable it.
+
+**Low-hunger alert:** Enabled automatically in survival/adventure mode. When hunger reaches 12 or below, local chat shows current hunger and health. Health uses health points (normally 2 points = 1 heart), excluding absorption hearts. It alerts once per low-hunger episode and rearms after hunger recovers above 12. Joining while already hungry also triggers an alert. Works in single-player and multiplayer without a server mod; only you see the message, and it performs no other action. Alerts are suppressed while dead, in creative, or in spectator mode, and reset on disconnect.
 
 Opening chat, your inventory, or a menu does not turn these features off. Automatic clicking pauses when a single-player world is paused and resumes when you return to the game. All features turn off when you leave a world. Automatic clicking is disabled while dead or in spectator mode.
 
@@ -98,3 +100,9 @@ Automatic right-clicking performs individual clicks at regular intervals. Whethe
 - Standardized on official Mojang name mappings. Each loader has its own package, with no additional shared library installation required.
 - Added regression tests for shared commands and tick scheduling. Build artifact names now include the loader name to help users choose the correct download.
 - Added the minimum Mixin version and resource pack metadata, and fixed Forge development launch entry-point detection and macOS first-thread configuration.
+
+### v3.3.1 (2026-10-13)
+
+- Added a local chat alert showing current hunger and health when hunger reaches 12 or below; performs no other action.
+- Alerts once per low-hunger episode and rearms above 12; supports single-player and multiplayer.
+- Restored default white text for command feedback, help, and alerts.

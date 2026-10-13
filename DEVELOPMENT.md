@@ -9,8 +9,8 @@ Minecraft Java 1.21.11，Java 21，Fabric / Forge / NeoForge。玩家安装和�
 | 目录 | 职责 |
 | --- | --- |
 | `common/src/main/java` | 不依赖 Minecraft 或加载器的状态、计时、调度和 Brigadier 命令树 |
-| `common/src/test/java` | 状态、命令参数、暂停、断线与点击调度测试 |
-| `common/src/minecraft/java` | 三端共用的 Minecraft 操作、红色反馈及潜行/右键 Mixin |
+| `common/src/test/java` | 状态、命令参数、暂停、断线、点击调度与饥饿提醒测试 |
+| `common/src/minecraft/java` | 三端共用的 Minecraft 操作、默认白色反馈及潜行/右键 Mixin |
 | `common/src/main/resources` | 共用图标和客户端 Mixin 配置 |
 | `fabric/` | Fabric 入口、生命周期事件、命令事件与 `fabric.mod.json` |
 | `forge/` | Forge 入口、事件总线注册与 `META-INF/mods.toml` |
@@ -43,9 +43,9 @@ export PATH="$JAVA_HOME/bin:$PATH"
 `build` 编译三个加载器并运行共享逻辑测试，`collectJars` 将三个可安装 JAR 汇总至：
 
 ```text
-build/libs/chy-fabric-3.3.0+mc1.21.11.jar
-build/libs/chy-forge-3.3.0+mc1.21.11.jar
-build/libs/chy-neoforge-3.3.0+mc1.21.11.jar
+build/libs/chy-fabric-3.3.1+mc1.21.11.jar
+build/libs/chy-forge-3.3.1+mc1.21.11.jar
+build/libs/chy-neoforge-3.3.1+mc1.21.11.jar
 ```
 
 单独构建或测试：
@@ -83,12 +83,13 @@ Forge 的开发启动会先生成 JAR，再用该完整 JAR 替换运行类路�
 7. 输入 `/shift` 后检查潜行移动、平台边缘防掉落、在箱子上放置方块；打开聊天/背包后应保持潜行。再次输入关闭，正常走动和手动 Shift 应恢复。也检查游戏设置中的“切换潜行”模式。
 8. 在多人服务器或未暂停的世界中，打开聊天、背包、Esc 菜单后，左右键仍应按间隔执行。单人世界暂停时不执行，恢复后继续。
 9. 三项功能开启后退出世界，重新进入应全部关闭；检查死亡重生后输入正常，旁观模式不自动点击。
-10. `/auto_attack`、`/chy_autoattack`、`/chy_deepseek`、`/chy_say` 不再由本模组提供；日志中的模组标识为 `chy`。
+10. 生存／冒险模式下将饥饿值降至 12，确认白色聊天提示显示当前饥饿值和血量，继续下降或保持低饥饿不刷屏；吃东西恢复到 12 以上，再降至 12 时再次提醒。多人服务器也验证一次，确认其他玩家看不到提示。进入世界时已低于 12 应提醒；死亡、创造和旁观模式不提醒。
+11. `/auto_attack`、`/chy_autoattack`、`/chy_deepseek`、`/chy_say` 不再由本模组提供；日志中的模组标识为 `chy`。
 
 ## 资源与本地数据
 
 - 共用图标：`common/src/main/resources/assets/chy/icon.png`。
-- 共用聊天提示颜色：`common/src/minecraft/java/name/modid/ChyClient.java` 中的 `ChatFormatting.RED`。
+- 共用聊天提示：`common/src/minecraft/java/name/modid/ChyClient.java` 使用无颜色覆盖的 `Component.literal`，以默认白色显示。
 - 只在 common 中修改功能；加载器入口只负责事件绑定。更改 Minecraft 版本时同时检查三个加载器及 Mixin 目标。
 - `backup/` 保存旧代码，不参与构建。`.gitignore` 排除 `run/`、`run-*/`、`build/` 和 `.gradle/`。请勿提交测试存档、日志或依赖缓存。
 - 手动安装时先关闭游戏，将对应加载器的一个 JAR 放入启动配置的 `mods` 目录；macOS 默认位置为 `~/Library/Application Support/minecraft/mods/`。Fabric 还需要 Fabric API。
@@ -101,3 +102,10 @@ Forge 的开发启动会先生成 JAR，再用该完整 JAR 替换运行类路�
 - Forge 使用完整 JAR 启动，进入独立测试存档；日志记录左右键开关、两项 Mixin 加载及正常退出保存。
 - 已补充 Mixin 最低版本和 Minecraft 1.21.11 资源包元数据。Windows / Forge 61.2.1 的最初日志只记录到启动完成，不能据此确认那次进入世界失败的原因。
 - 方块放置结果、持续潜行的边缘保护、多人与三端完整行为清单仍需逐项实测。
+
+## v3.3.1 验证记录（2026-10-13）
+
+- `./gradlew --offline build collectJars` 通过，三个加载器均编译成功。
+- 共享逻辑 18 项测试通过，包含新增的阈值提醒、避免刷屏、跳过阈值、恢复后重触发和重置测试。
+- 校验三个 JAR 的版本、饥饿提醒类、客户端集成类、图标、Mixin 配置及 Java 21 字节码，并复制到 `built/`。
+- 按要求未启动任何游戏客户端；Windows 下的实际聊天显示和多人服务器行为待用户测试。

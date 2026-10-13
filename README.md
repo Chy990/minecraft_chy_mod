@@ -4,7 +4,7 @@
 
 伪键盘操作实现挂机和其他功能。
 
-**当前版本：v3.3.0**
+**当前版本：v3.3.1**
 
 **支持版本：Minecraft Java 1.21.11 · Fabric / Forge / NeoForge · Java 21**
 
@@ -18,9 +18,9 @@
 
 | 加载器 | 安装要求 | 下载 |
 | --- | --- | --- |
-| Fabric | [Fabric Loader](https://fabricmc.net/use/installer/) 0.19.5+，另装 [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11) | [chy-fabric-3.3.0+mc1.21.11.jar](built/chy-fabric-3.3.0+mc1.21.11.jar?raw=true) |
-| Forge | [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html) 61.2.0+ | [chy-forge-3.3.0+mc1.21.11.jar](built/chy-forge-3.3.0+mc1.21.11.jar?raw=true) |
-| NeoForge | [NeoForge](https://neoforged.net/) 21.11.45+（对应 1.21.11） | [chy-neoforge-3.3.0+mc1.21.11.jar](built/chy-neoforge-3.3.0+mc1.21.11.jar?raw=true) |
+| Fabric | [Fabric Loader](https://fabricmc.net/use/installer/) 0.19.5+，另装 [Fabric API](https://modrinth.com/mod/fabric-api/versions?g=1.21.11) | [chy-fabric-3.3.1+mc1.21.11.jar](built/chy-fabric-3.3.1+mc1.21.11.jar?raw=true) |
+| Forge | [Forge](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html) 61.2.0+ | [chy-forge-3.3.1+mc1.21.11.jar](built/chy-forge-3.3.1+mc1.21.11.jar?raw=true) |
+| NeoForge | [NeoForge](https://neoforged.net/) 21.11.45+（对应 1.21.11） | [chy-neoforge-3.3.1+mc1.21.11.jar](built/chy-neoforge-3.3.1+mc1.21.11.jar?raw=true) |
 
 本模组只需安装在客户端，三种加载器的命令和行为一致。构建与架构说明见 [开发与维护文档](DEVELOPMENT.md)。
 
@@ -38,7 +38,9 @@
 - **自动左键**：攻击准星指向的实体；无实体时挥手，不自动挖方块。
 - **自动右键**：手持方块时尝试放置，也可触发容器、按钮等原版右键交互。配合 `/shift` 可在箱子等方块上放置方块。
 - **间隔设置**：参数为正整数 tick，最小 1。左右键独立计时；调整后重新计时，每次无参数重新开启都恢复为 12 tick。
-- **状态提示**：聊天栏以红色显示，例如 `自动左键，间隔12 tick`。再次输入相应无参数命令即可关闭。
+- **状态提示**：聊天栏以默认白色显示，例如 `自动左键，间隔12 tick`。再次输入相应无参数命令即可关闭。
+
+**低饥饿提醒**：默认开启，无需命令。生存／冒险模式下，饥饿值降至 12 或以下时，在本地聊天栏显示当前饥饿值和血量，例如 `饥饿提醒：当前饥饿值 12/20，血量 18.0/20.0。` 血量按生命值点数显示（通常 2 点 = 1 颗心），不含金色吸收生命。每次低饥饿状态只提醒一次，恢复到 12 以上后可再次触发；进入世界时已经低于阈值也会提醒。单人与多人服务器均可用，服务器无需安装；提示仅自己可见，不会自动吃东西或触发其他操作。死亡、创造和旁观模式不提醒，退出世界后重置提醒状态。
 
 打开聊天、背包或菜单不会关闭功能；单人世界暂停时自动点击也暂停，恢复游戏后继续。退出世界后所有功能关闭。死亡或旁观期间不自动点击。
 
@@ -98,3 +100,9 @@
 - 统一使用 Mojang 官方名称映射，三个加载器分别打包，无需额外安装共享库。
 - 新增共享命令及 tick 调度回归测试，构建产物名称加入加载器标识，避免安装混淆。
 - 补齐 Mixin 最低版本与资源包元数据，修复 Forge 开发启动的入口识别和 macOS 首线程配置。
+
+### v3.3.1（2026-10-13）
+
+- 新增低饥饿提醒：饥饿值降至 12 或以下时，在本地聊天栏显示当前饥饿值和血量，不执行其他动作。
+- 同一次低饥饿状态只提醒一次，恢复到 12 以上后可再次触发；支持单人与多人服务器。
+- 命令反馈、帮助和提醒使用默认白色文字。

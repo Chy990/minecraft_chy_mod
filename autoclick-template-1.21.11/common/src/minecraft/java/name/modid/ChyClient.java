@@ -3,7 +3,6 @@ package name.modid;
 import com.mojang.brigadier.CommandDispatcher;
 import java.util.function.BiConsumer;
 import name.modid.mixin.MinecraftClientInvoker;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -15,16 +14,41 @@ public final class ChyClient {
     private static final Logger LOGGER = LoggerFactory.getLogger("chy");
     private static final ChyState STATE = new ChyState();
     private static final ChyController CONTROLLER = new ChyController(STATE);
+    private static final HungerAlert HUNGER_ALERT = new HungerAlert();
     private static final ChyController.Actions ACTIONS = new MinecraftActions();
 
     private ChyClient() {}
     public static boolean isAutoSneaking() { return STATE.isSneaking(); }
-    public static void reset() { STATE.reset(); }
-    public static void tick() { CONTROLLER.tick(ACTIONS); }
+    public static void reset() {
+        STATE.reset();
+        HUNGER_ALERT.reset();
+    }
+    public static void tick() {
+        CONTROLLER.tick(ACTIONS);
+        checkHunger();
+    }
+
+    private static void checkHunger() {
+        var client = Minecraft.getInstance();
+        var player = client.player;
+        if (player == null || client.level == null || !player.isAlive()
+                || player.isSpectator() || player.isCreative()) {
+            HUNGER_ALERT.reset();
+            return;
+        }
+        if (client.isPaused()) return;
+        int hunger = player.getFoodData().getFoodLevel();
+        if (HUNGER_ALERT.update(hunger)) {
+            // Local chat only: does not send a message or perform an action on the server.
+            client.gui.getChat().addMessage(Component.literal(
+                "饥饿提醒：当前饥饿值 " + hunger + "/20，血量 "
+                    + player.getHealth() + "/" + player.getMaxHealth() + "。"));
+        }
+    }
 
     public static <S> void registerCommands(CommandDispatcher<S> dispatcher, BiConsumer<S, Component> sender) {
         ChyCommands.register(dispatcher, STATE, (source, message) -> {
-            sender.accept(source, Component.literal(message).withStyle(ChatFormatting.RED));
+            sender.accept(source, Component.literal(message));
             LOGGER.info("{}", message);
         });
     }
