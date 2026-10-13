@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "KeyboardInputMixin",
-    "MinecraftClientInvoker"
+    "MinecraftClientInvoker",
+    "MinecraftUseItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

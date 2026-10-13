@@ -2,7 +2,7 @@ package name.modid;
 
 /** One notification per low-hunger episode, including joining an already hungry player. */
 public final class HungerAlert {
-    public static final int THRESHOLD = 12;
+    public static final int THRESHOLD = 14;
     private boolean alerted;
 
     public boolean update(int foodLevel) {

@@ -14,6 +14,13 @@ public final class ChyCommands {
                                     BiConsumer<S, String> feedback) {
         registerClick(dispatcher, "left_click", "左", state.leftClick, feedback);
         registerClick(dispatcher, "right_click", "右", state.rightClick, feedback);
+        dispatcher.register(LiteralArgumentBuilder.<S>literal("stay_zhuren").executes(context -> {
+            state.toggleStayZhuren();
+            feedback.accept(context.getSource(), state.isStayingZhuren()
+                ? "低饥饿提醒与自动进食已开启（饥饿值 ≤ 14，副手请放金胡萝卜）"
+                : "低饥饿提醒与自动进食已关闭");
+            return 1;
+        }));
         dispatcher.register(LiteralArgumentBuilder.<S>literal("shift").executes(context -> {
             state.toggleSneaking();
             feedback.accept(context.getSource(), state.isSneaking() ? "自动潜行已开启" : "自动潜行已关闭");
@@ -54,7 +61,9 @@ public final class ChyCommands {
         "两个功能独立计时；每次无参数开启均恢复 12 tick。例如 /right_click 20：每 20 tick 右键一次。",
         "开启提示：自动左/右键，间隔xx tick。再次输入相应无参数命令即可关闭。",
         "/shift - 开启/关闭持续潜行，相当于一直按住潜行键，可配合右键放置方块。",
-        "饥饿值降至 12 或以下时，自动在本地聊天栏提示当前饥饿值和血量；恢复到 12 以上后可再次提醒。",
+        "/stay_zhuren - 开启/关闭低饥饿提醒和自动进食（默认关闭）；副手请放金胡萝卜。",
+        "饥饿值降至 14 或以下时，提示当前时间、饥饿值和血量，并吃一根副手金胡萝卜；恢复到 14 以上后可再次触发。",
+        "自动进食期间暂缓自动左右键，完成后恢复；副手无金胡萝卜时仅提醒。",
         "打开聊天、背包或菜单不关闭功能；单人世界暂停时无法继续实际操作。退出世界后全部关闭。",
         "/chy_help - 查看帮助。旧命令 /auto_attack 已改为 /left_click。"
     };

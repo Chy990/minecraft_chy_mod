@@ -5,6 +5,10 @@ public final class ChyState {
     public final ClickState leftClick = new ClickState();
     public final ClickState rightClick = new ClickState();
     private boolean sneaking;
+    private boolean stayingZhuren;
+
+    public void toggleStayZhuren() { stayingZhuren = !stayingZhuren; }
+    public boolean isStayingZhuren() { return stayingZhuren; }
 
     public void toggleSneaking() {
         sneaking = !sneaking;
@@ -18,5 +22,6 @@ public final class ChyState {
         leftClick.stop();
         rightClick.stop();
         sneaking = false;
+        stayingZhuren = false;
     }
 }

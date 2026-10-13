@@ -55,11 +55,26 @@ class ChyCommandsTest {
     }
 
     @Test
+    void stayZhurenDefaultsOffAndTogglesWithoutChangingClickSettings() throws Exception {
+        assertFalse(state.isStayingZhuren());
+        dispatcher.execute("left_click 40", source);
+        dispatcher.execute("stay_zhuren", source);
+        assertTrue(state.isStayingZhuren());
+        assertTrue(messages.getLast().contains("已开启"));
+        assertEquals(40, state.leftClick.intervalTicks());
+        dispatcher.execute("stay_zhuren", source);
+        assertFalse(state.isStayingZhuren());
+        assertTrue(messages.getLast().contains("已关闭"));
+        assertTrue(state.leftClick.isEnabled());
+    }
+
+    @Test
     void maximumIntervalAndHelpWorkAndLegacyCommandsAreAbsent() throws Exception {
         dispatcher.execute("right_click 2147483647", source);
         assertEquals(Integer.MAX_VALUE, state.rightClick.intervalTicks());
         dispatcher.execute("chy_help", source);
         assertTrue(messages.stream().anyMatch(s -> s.contains("/shift")));
+        assertTrue(messages.stream().anyMatch(s -> s.contains("/stay_zhuren")));
         assertTrue(messages.stream().anyMatch(s -> s.contains("退出世界后全部关闭")));
         for (String command : List.of("auto_attack", "chy_autoattack", "chy_deepseek", "chy_say")) {
             assertNull(dispatcher.getRoot().getChild(command));

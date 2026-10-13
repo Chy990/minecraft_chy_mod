@@ -9,8 +9,8 @@ Minecraft Java 1.21.11，Java 21，Fabric / Forge / NeoForge。玩家安装和�
 | 目录 | 职责 |
 | --- | --- |
 | `common/src/main/java` | 不依赖 Minecraft 或加载器的状态、计时、调度和 Brigadier 命令树 |
-| `common/src/test/java` | 状态、命令参数、暂停、断线、点击调度与饥饿提醒测试 |
-| `common/src/minecraft/java` | 三端共用的 Minecraft 操作、默认白色反馈及潜行/右键 Mixin |
+| `common/src/test/java` | 状态、命令参数、暂停、断线、点击调度、饥饿提醒与自动进食测试 |
+| `common/src/minecraft/java` | 三端共用的 Minecraft 操作、默认白色反馈及潜行/右键/持续进食 Mixin |
 | `common/src/main/resources` | 共用图标和客户端 Mixin 配置 |
 | `fabric/` | Fabric 入口、生命周期事件、命令事件与 `fabric.mod.json` |
 | `forge/` | Forge 入口、事件总线注册与 `META-INF/mods.toml` |
@@ -20,7 +20,7 @@ Minecraft Java 1.21.11，Java 21，Fabric / Forge / NeoForge。玩家安装和�
 
 - [JEI](https://github.com/mezz/JustEnoughItems) 将通用代码与加载器代码放在同一仓库的独立模块中，适合统一维护功能。
 - [MultiLoader Template](https://github.com/jaredlll08/MultiLoader-Template) 使用 common 源码与加载器子项目，无需增加跨平台运行时库。
-- [Architectury Templates](https://github.com/architectury/architectury-templates) 提供另一种多加载器工程方案；当前功能只涉及客户端命令和输入，无需引入额外平台 API。
+- [Architectury Templates](https://github.com/architectury/architectury-templates) 提供另一种多加载器工程方案；当前功能只涉及客户端命令、输入和物品使用，无需引入额外平台 API。
 - 构建配置参考 [Forge 1.21.11 MDK](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.21.11.html)、[Forge Mixin 示例](https://github.com/MinecraftForge/MDKExamples/tree/master/mixins-only/fg7) 和 [NeoForge 1.21.11 MDK](https://github.com/NeoForgeMDKs/MDK-1.21.11-ModDevGradle)。
 
 本项目采用共享源码编译：每个加载器在自己的 Minecraft 依赖环境中编译同一份 common 源码，再直接打进各自 JAR。三个模块均使用 Mojang 官方名称映射；Fabric Loom 将发布包映射为 Fabric 的运行时名称；Forge 1.21.11 和 NeoForge 使用官方运行时名称，不生成旧版 SRG refmap。`common` 的纯 Java 测试不需启动游戏。玩家无需安装 common 或 Architectury API。
@@ -83,8 +83,9 @@ Forge 的开发启动会先生成 JAR，再用该完整 JAR 替换运行类路�
 7. 输入 `/shift` 后检查潜行移动、平台边缘防掉落、在箱子上放置方块；打开聊天/背包后应保持潜行。再次输入关闭，正常走动和手动 Shift 应恢复。也检查游戏设置中的“切换潜行”模式。
 8. 在多人服务器或未暂停的世界中，打开聊天、背包、Esc 菜单后，左右键仍应按间隔执行。单人世界暂停时不执行，恢复后继续。
 9. 三项功能开启后退出世界，重新进入应全部关闭；检查死亡重生后输入正常，旁观模式不自动点击。
-10. 生存／冒险模式下将饥饿值降至 12，确认白色聊天提示显示当前饥饿值和血量，继续下降或保持低饥饿不刷屏；吃东西恢复到 12 以上，再降至 12 时再次提醒。多人服务器也验证一次，确认其他玩家看不到提示。进入世界时已低于 12 应提醒；死亡、创造和旁观模式不提醒。
-11. `/auto_attack`、`/chy_autoattack`、`/chy_deepseek`、`/chy_say` 不再由本模组提供；日志中的模组标识为 `chy`。
+10. 默认低饥饿不提示。副手拿金胡萝卜，输入 `/stay_zhuren`，在饥饿值 14 或以下确认白色聊天提示含本机时间、饥饿值和血量，且只吃一根；在多人服务器验证其他玩家看不到消息。吃完仍低于阈值时不应连续吃，恢复到 14 以上后再降至阈值应再次触发。
+11. 同时开启左右键，确认自动进食期间暂停点击，吃完恢复原设置；准星对准箱子、主手拿工具也应直接吃副手金胡萝卜。检查打开聊天/背包后也可进食，单人暂停时不继续。副手无食物时不误用其他物品，正在手动使用物品时等待；关闭命令、死亡、切换副手和断线后不持续使用。
+12. `/auto_attack`、`/chy_autoattack`、`/chy_deepseek`、`/chy_say` 不再由本模组提供；日志中的模组标识为 `chy`。
 
 ## 资源与本地数据
 
@@ -103,9 +104,10 @@ Forge 的开发启动会先生成 JAR，再用该完整 JAR 替换运行类路�
 - 已补充 Mixin 最低版本和 Minecraft 1.21.11 资源包元数据。Windows / Forge 61.2.1 的最初日志只记录到启动完成，不能据此确认那次进入世界失败的原因。
 - 方块放置结果、持续潜行的边缘保护、多人与三端完整行为清单仍需逐项实测。
 
-## v3.3.1 验证记录（2026-10-13）
+## v3.3.1 验证记录（2026-10-13，按更新后的计划重新构建）
 
-- `./gradlew --offline build collectJars` 通过，三个加载器均编译成功。
-- 共享逻辑 18 项测试通过，包含新增的阈值提醒、避免刷屏、跳过阈值、恢复后重触发和重置测试。
-- 校验三个 JAR 的版本、饥饿提醒类、客户端集成类、图标、Mixin 配置及 Java 21 字节码，并复制到 `built/`。
-- 按要求未启动任何游戏客户端；Windows 下的实际聊天显示和多人服务器行为待用户测试。
+- `./gradlew --offline build collectJars` 通过，三个加载器编译成功，30 项共享逻辑测试全部通过。
+- 自动进食状态机覆盖默认关闭、一次进食、饥饿恢复后重触发、等待手动使用、食物缺失、服务器拒绝、暂停、超时、关闭、切换物品及重置。
+- 检查三个加载器的 `Minecraft.handleKeybinds` 均存在持续进食 Mixin 所需的 `releaseUsingItem` 调用位置；运行时仍需实机确认。
+- 产物保留计划中的 v3.3.1 版本号，重新生成并覆盖 `built/` 中对应的三个 JAR。
+- 按要求未启动任何游戏客户端；Windows 下的实际进食、聊天显示和多人服务器行为待用户测试。

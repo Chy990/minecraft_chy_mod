@@ -31,10 +31,12 @@ class ChyStateTest {
         state.leftClick.tick();
         state.rightClick.tick();
         state.toggleSneaking();
+        state.toggleStayZhuren();
         state.reset();
         assertFalse(state.leftClick.isEnabled());
         assertFalse(state.rightClick.isEnabled());
         assertFalse(state.isSneaking());
+        assertFalse(state.isStayingZhuren());
         for (ClickState click : new ClickState[]{state.leftClick, state.rightClick}) {
             assertFalse(click.tick());
             click.toggle();
